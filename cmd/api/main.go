@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	httpHandler "go-test-api/internal/adapter/http"
+	"go-test-api/internal/logzap"
 
 	"go-test-api/internal/adapter/repository"
 	"go-test-api/internal/adapter/usecase"
@@ -19,18 +20,43 @@ import (
 )
 
 func main() {
+	config := model.Config{
+		App: model.App{
+			Env:         "local",
+			Port:        8080,
+			Name:        "go-test-api",
+			LogOption:   "console",
+			LogLevel:    "debug",
+			RPCAddress:  "localhost:8080",
+			RPCInsecure: true,
+		},
+		PostgresClient: model.PostgresClient{
+			Db:       "go_document",
+			Host:     "localhost",
+			Username: "cp_eng",
+			Password: "H921hK7Dv20Al",
+			Port:     "35432",
+		},
+	}
 	ctx := context.Background()
-	repo := repository.NewRepository(ctx, model.PostgresClient{Db: "fal_db", Host: "localhost", Username: "postgres", Password: "Cyanogenmod@123", Port: "5432"})
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	logger, sugarLogger := logzap.InitLogger(config)
+	defer logger.Sync()
+	defer sugarLogger.Sync()
+
+	repo := repository.NewRepository(ctx, config.PostgresClient)
 	customerRepo := repo.GetCustomerRepository()
 
 	uc := usecase.NewUsecases(model.Config{}, customerRepo)
 
-	httpServer := httpHandler.NewHTTPServer(ctx, model.Config{App: model.App{Env: "localhost", Port: 8080}}, uc)
+	httpServer := httpHandler.NewHTTPServer(ctx, config, logger, uc)
 
 	// creating a listener for server
-	nl, err := net.Listen("tcp", fmt.Sprintf(":%d", model.Config{App: model.App{Env: "localhost", Port: 8080}}.App.Port))
+	nl, err := net.Listen("tcp", fmt.Sprintf(":%d", config.App.Port))
 	if err != nil {
-		fmt.Printf("tcp connection failure - %v", err)
+		sugarLogger.Fatalf("tcp connection failure - %v", err)
 	}
 
 	m := cmux.New(nl)
@@ -49,7 +75,7 @@ func main() {
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	ctx, fn := context.WithTimeout(context.Background(), model.Config{App: model.App{Env: "localhost", Port: 8080}}.App.GracefulTimeout)
+	ctx, fn := context.WithTimeout(context.Background(), config.App.GracefulTimeout)
 	defer fn()
 	go func() {
 		defer wg.Done()

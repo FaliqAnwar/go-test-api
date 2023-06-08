@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func (h *customerHandler) customer() echo.HandlerFunc {
+func (h customerHandler) customer() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		//ctx := c.Request().Context()
 		//
