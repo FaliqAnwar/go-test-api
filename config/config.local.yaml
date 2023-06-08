@@ -1,0 +1,14 @@
+app:
+  env: local
+  port: 8080
+  name: go-test-api
+postgres_client:
+  host: localhost
+  port: 5432
+  username: postgres
+  password: Cyanogenmod@123
+  db: fal_db
+  ssl_mode:
+  max_open_conn:
+  max_idle_conn:
+  debug_mode: false
