@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	httpHandler "go-test-api/internal/adapter/http"
-	"go-test-api/internal/logzap"
 
 	"go-test-api/internal/adapter/repository"
 	"go-test-api/internal/adapter/usecase"
@@ -43,21 +42,17 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	logger, sugarLogger := logzap.InitLogger(config)
-	defer logger.Sync()
-	defer sugarLogger.Sync()
-
 	repo := repository.NewRepository(ctx, config.PostgresClient)
 	customerRepo := repo.GetCustomerRepository()
 
 	uc := usecase.NewUsecases(config, customerRepo)
 
-	httpServer := httpHandler.NewHTTPServer(ctx, config, logger, uc)
+	httpServer := httpHandler.NewHTTPServer(ctx, config, uc)
 
 	// creating a listener for server
 	nl, err := net.Listen("tcp", fmt.Sprintf(":%d", config.App.Port))
 	if err != nil {
-		sugarLogger.Fatalf("tcp connection failure - %v", err)
+		fmt.Printf("tcp connection failure - %v", err)
 	}
 
 	m := cmux.New(nl)
@@ -71,7 +66,7 @@ func main() {
 
 	go func() {
 		if err := m.Serve(); err != nil {
-			sugarLogger.Fatalf("serve cmux failure - %v", err)
+			fmt.Printf("serve cmux failure - %v", err)
 		}
 	}()
 
@@ -90,5 +85,5 @@ func main() {
 	}()
 
 	wg.Wait()
-	sugarLogger.Info("all server stopped!")
+	fmt.Print("all server stopped!")
 }
