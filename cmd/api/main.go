@@ -31,10 +31,7 @@ func main() {
 			RPCInsecure: true,
 		},
 		PostgresClient: model.PostgresClient{
-			Host: "localhost",
-			//Db:       "go_document",
-			//Username: "cp_eng",
-			//Password: "H921hK7Dv20Al",
+			Host:     "localhost",
 			Db:       "postgres",
 			Username: "postgres",
 			Password: "Cyanogenmod@123",
