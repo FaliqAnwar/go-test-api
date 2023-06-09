@@ -31,13 +31,17 @@ func main() {
 			RPCInsecure: true,
 		},
 		PostgresClient: model.PostgresClient{
-			Db:       "go_document",
-			Host:     "localhost",
-			Username: "cp_eng",
-			Password: "H921hK7Dv20Al",
-			Port:     "35432",
+			Host: "localhost",
+			//Db:       "go_document",
+			//Username: "cp_eng",
+			//Password: "H921hK7Dv20Al",
+			Db:       "postgres",
+			Username: "postgres",
+			Password: "Cyanogenmod@123",
+			Port:     "5432",
 		},
 	}
+
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -49,7 +53,7 @@ func main() {
 	repo := repository.NewRepository(ctx, config.PostgresClient)
 	customerRepo := repo.GetCustomerRepository()
 
-	uc := usecase.NewUsecases(model.Config{}, customerRepo)
+	uc := usecase.NewUsecases(config, customerRepo)
 
 	httpServer := httpHandler.NewHTTPServer(ctx, config, logger, uc)
 
@@ -68,6 +72,12 @@ func main() {
 		httpServer.Start(ctx, httpL)
 	}()
 
+	go func() {
+		if err := m.Serve(); err != nil {
+			sugarLogger.Fatalf("serve cmux failure - %v", err)
+		}
+	}()
+
 	// simple graceful shutdown
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -83,4 +93,5 @@ func main() {
 	}()
 
 	wg.Wait()
+	sugarLogger.Info("all server stopped!")
 }

@@ -10,5 +10,5 @@ type (
 		Sector  int32  `json:"sector,omitempty"`
 	}
 
-	Customers *[]Customer
+	Customers []*Customer
 )

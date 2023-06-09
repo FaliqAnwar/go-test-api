@@ -17,4 +17,5 @@ func New(app *echo.Group, uc port.Usecases) {
 	}
 
 	app.POST("/customer", c.customer())
+	app.GET("/customer", c.getCustomers())
 }
