@@ -33,8 +33,8 @@ func main() {
 			Host:     "localhost",
 			Db:       "postgres",
 			Username: "postgres",
-			Password: "Cyanogenmod@123",
-			Port:     "5432",
+			Password: "12345678",
+			Port:     "54321",
 		},
 	}
 

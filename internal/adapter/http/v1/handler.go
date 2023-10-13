@@ -10,12 +10,13 @@ type customerHandler struct {
 	customerUsecase port.CustomerUsecase
 }
 
-// New document handler will initialize the document/ resources endpoint
 func New(app *echo.Group, uc port.Usecases) {
 	c := customerHandler{
 		customerUsecase: uc.GetCustomerUsecase(),
 	}
 
 	app.POST("/customer", c.customer())
-	app.GET("/customer", c.getCustomers())
+	app.GET("/customer", c.getCustomerByID())
+	app.GET("/customers", c.getCustomers())
+	app.PUT("/customer/:ID", c.updateCustomer())
 }

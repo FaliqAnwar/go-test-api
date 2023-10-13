@@ -12,3 +12,16 @@ type (
 
 	Customers []*Customer
 )
+
+type RequestGetCustomerByID struct {
+	ID int32
+}
+
+type RequestUpdateCustomer struct {
+	ID      int32
+	Name    string
+	Age     int16
+	Address string
+	Salary  int64
+	Sector  int32
+}
